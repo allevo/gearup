@@ -21,25 +21,25 @@ inherits(Job, EventEmitter);
 
 
 Job.prototype.success = function(response) {
-  this.server.workComplete(getBuffer(this.jobHandle, {addNullInTheEnd: true}), new Buffer(response, 'ascii'));
+  this.server.workComplete(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
 };
 Job.prototype.fail = function() {
-  this.server.workFail(getBuffer(this.jobHandle, {addNullInTheEnd: true}));
+  this.server.workFail(getBuffer(this.jobHandle));
 };
 Job.prototype.exception = function(response) {
-  this.server.workException(getBuffer(this.jobHandle, {addNullInTheEnd: true}), new Buffer(response, 'ascii'));
+  this.server.workException(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
 };
 Job.prototype.data = function(response) {
-  this.server.workData(getBuffer(this.jobHandle, {addNullInTheEnd: true}), new Buffer(response, 'ascii'));
+  this.server.workData(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
 };
 Job.prototype.warning = function(response) {
-  this.server.workWarning(getBuffer(this.jobHandle, {addNullInTheEnd: true}), new Buffer(response, 'ascii'));
+  this.server.workWarning(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
 };
 
 Job.prototype.status = function(numerator, denominator) {
   this.server.workStatus(
-    getBuffer(this.jobHandle, {addNullInTheEnd: true}),
-    Buffer.concat([getBufferForTheLength(numerator), new Buffer([0x00])]),
+    getBuffer(this.jobHandle),
+    getBufferForTheLength(numerator),
     getBufferForTheLength(denominator)
   );
 };

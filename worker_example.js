@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict';
 
 
@@ -11,9 +12,9 @@ server.on('connect', function() {
 
   worker.canDo('reverse', function(job) {
     console.log('handle reverse', job.jobHandle, job.workload);
-    
+
     setTimeout(function() {
-      
+
       job.success('pippo');
 
       worker.grab();

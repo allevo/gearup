@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 'use stict';
 
 var Server = require('./Server');
