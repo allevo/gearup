@@ -8,6 +8,7 @@ var protocol = require('./protocol');
 
 var getBufferForTheLength = require('./utils').getBufferForTheLength;
 var getContentLengthFromBuffer = require('./utils').getContentLengthFromBuffer;
+var nullBuffer = require('./utils').NullCharBuffer;
 
 function Server(host, port) {
   EventEmitter.apply(this);
@@ -23,57 +24,75 @@ function Server(host, port) {
 inherits(Server, EventEmitter);
 
 Server.prototype.submitlJobLowBackground = function(queueBuffer, dataBuffer, identifierBuffer) {
+  console.log('SUBMIT_JOB_LOW_BG');
 	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_LOW_BG, queueBuffer, dataBuffer, identifierBuffer);
 };
 Server.prototype.submitlJobLow = function(queueBuffer, dataBuffer, identifierBuffer) {
+  console.log('SUBMIT_JOB_LOW');
 	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_LOW, queueBuffer, dataBuffer, identifierBuffer);
 };
 Server.prototype.submitlJobHighBackground = function(queueBuffer, dataBuffer, identifierBuffer) {
+  console.log('SUBMIT_JOB_HIGH_BG');
 	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_HIGH_BG, queueBuffer, dataBuffer, identifierBuffer);
 };
 Server.prototype.submitlJobHigh = function(queueBuffer, dataBuffer, identifierBuffer) {
+  console.log('SUBMIT_JOB_HIGH');
 	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_HIGH, queueBuffer, dataBuffer, identifierBuffer);
 };
 Server.prototype.submitlJobNormalBackground = function(queueBuffer, dataBuffer, identifierBuffer) {
+  console.log('SUBMIT_JOB_BG');
 	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_BG, queueBuffer, dataBuffer, identifierBuffer);
 };
 Server.prototype.submitlJobNormal = function(queueBuffer, dataBuffer, identifierBuffer) {
+  console.log('SUBMIT_JOB');
 	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB, queueBuffer, dataBuffer, identifierBuffer);
 };
 Server.prototype.canDo = function(queueBuffer) {
+  console.log('CAN_DO');
 	this.__write1Args(protocol.REQUEST_PACKET_TYPE.CAN_DO, queueBuffer);
 };
 Server.prototype.grab = function() {
+  console.log('GRAB');
 	this.__write0Args(protocol.REQUEST_PACKET_TYPE.GRAB);
 };
 Server.prototype.preSleep = function() {
+  console.log('PRE_SLEEP');
 	this.__write0Args(protocol.REQUEST_PACKET_TYPE.PRE_SLEEP);
 };
 Server.prototype.workStatus = function(jobHadleBuffer, numeratorBuffer, denominatorBuffer) {
+  console.log('WORK_STATUS');
 	this.__write3Args(protocol.REQUEST_PACKET_TYPE.WORK_STATUS, jobHadleBuffer, numeratorBuffer, denominatorBuffer);
 };
 Server.prototype.workComplete = function(jobHadleBuffer, responseBuffer) {
+  console.log('WORK_COMPLETE');
 	this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_COMPLETE, jobHadleBuffer, responseBuffer);
 };
 Server.prototype.workFail = function(jobHadleBuffer) {
+  console.log('WORK_FAIL');
 	this.__write1Args(protocol.REQUEST_PACKET_TYPE.WORK_FAIL, jobHadleBuffer);
 };
 Server.prototype.workException = function(jobHadleBuffer, responseBuffer) {
+  console.log('WORK_EXCEPTION');
 	this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_EXCEPTION, jobHadleBuffer, responseBuffer);
 };
 Server.prototype.workData = function(jobHadleBuffer, responseBuffer) {
+  console.log('WORK_DATA');
 	this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_DATA, jobHadleBuffer, responseBuffer);
 };
 Server.prototype.workWarning = function(jobHadleBuffer, responseBuffer) {
+  console.log('WORK_WARNING');
 	this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_WARNING, jobHadleBuffer, responseBuffer);
 };
 Server.prototype.echo = function(dataBuffer) {
+  console.log('ECHO');
 	this.__write1Args(protocol.REQUEST_PACKET_TYPE.ECHO, dataBuffer);
 };
 Server.prototype.setClientId = function(idBuffer) {
+  console.log('SET_CLIENT_ID');
 	this.__write1Args(protocol.REQUEST_PACKET_TYPE.SET_CLIENT_ID, idBuffer);
 };
 Server.prototype.optionsRequest = function(optionBuffer) {
+  console.log('OPTION_REQ');
 	this.__write1Args(protocol.REQUEST_PACKET_TYPE.OPTION_REQ, optionBuffer);
 };
 
@@ -143,14 +162,14 @@ var responseTypeMap = {
 	OPTION_RES: 'handleOptionResponse',
 };
 Server.prototype.handleResponse = function(responseTypeBuffer, content) {
-  console.log('handleResponse', responseTypeBuffer, content);
-
   var hexRepresentation = responseTypeBuffer.toString('hex');
   if (!protocol.RESPONSE_PACKET_TYPE.hasOwnProperty(hexRepresentation)) {
     console.log(responseTypeBuffer.toString('ascii'), content.toString('ascii'));
     throw new Error('Not implemented: ' + responseTypeBuffer.toString('hex'));
   }
   var responsePacketType = protocol.RESPONSE_PACKET_TYPE[hexRepresentation];
+
+  console.log('handleResponse', responsePacketType, content);
 
   if (!responseTypeMap.hasOwnProperty(responsePacketType)) {
     console.log(responseTypeBuffer.toString('ascii'), content.toString('ascii'));
@@ -204,7 +223,6 @@ Server.prototype.handleOptionResponse = function(content) {
   }
 };
 
-
 Server.prototype.__write0Args = function(packageTypeBuffer) {
   this.writeToSocket(Buffer.concat([
     protocol.REQUEST_HEADER,
@@ -216,7 +234,7 @@ Server.prototype.__write1Args = function(packageTypeBuffer, firstBuffer) {
   this.writeToSocket(Buffer.concat([
     protocol.REQUEST_HEADER,
     packageTypeBuffer,
-    getBufferForTheLength(firstBuffer.length),
+    getBufferForTheLength(firstBuffer.length, 4),
     firstBuffer,
   ]));
 };
@@ -224,7 +242,7 @@ Server.prototype.__write2Args = function(packageTypeBuffer, firstBuffer, secondB
   this.writeToSocket(Buffer.concat([
     protocol.REQUEST_HEADER,
     packageTypeBuffer,
-    getBufferForTheLength(firstBuffer.length + secondBuffer.length + 1),
+    getBufferForTheLength(firstBuffer.length + secondBuffer.length + 1, 4),
     firstBuffer,
     nullBuffer,
     secondBuffer,
@@ -234,7 +252,7 @@ Server.prototype.__write3Args = function(packageTypeBuffer, firstBuffer, secondB
   this.writeToSocket(Buffer.concat([
     protocol.REQUEST_HEADER,
     packageTypeBuffer,
-    getBufferForTheLength(firstBuffer.length + secondBuffer.length + thirdBuffer.length + 2),
+    getBufferForTheLength(firstBuffer.length + secondBuffer.length + thirdBuffer.length + 2, 4),
     firstBuffer,
     nullBuffer,
     secondBuffer,
@@ -244,6 +262,7 @@ Server.prototype.__write3Args = function(packageTypeBuffer, firstBuffer, secondB
 };
 Server.prototype.writeToSocket = function(buff) {
   console.log('write to socket', buff);
+  if (!this.socket.writable) throw new Error('Cannot write to unwritable socket');
   this.socket.write(buff);
 };
 

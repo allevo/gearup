@@ -7,7 +7,7 @@ var getBuffer = require('./utils').getBuffer;
 var Job = require('./Job');
 
 function Worker(server) {
-  BaseConnector.apply(this, server);
+  BaseConnector.call(this, server);
 
   this.server.worker = this;
 
@@ -59,7 +59,7 @@ Worker.prototype.handleJobAssign = function(content) {
 
   callback(job);
 
-  this.grab();
+  // this.grab();
 };
 
 Worker.prototype.handleNoJob = function() {

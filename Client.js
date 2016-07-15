@@ -6,8 +6,19 @@ var inherits = require('util').inherits;
 var getBuffer = require('./utils').getBuffer;
 
 function Client(server) {
-  BaseConnector.apply(this, server);
+  BaseConnector.call(this, server);
   this.server.client = this;
+
+  this.server.on('socket-error', function(e) {
+    for(var i = 0; i < this.jobsWaitingForTheCreation.length; i++) {
+      this.jobsWaitingForTheCreation[i].emit('error', e);
+    }
+    for(i in this.jobsWaitingForTheCompletion) {
+      this.jobsWaitingForTheCompletion[i].emit('error', e);
+    }
+
+    this.emit('error', e);
+  }.bind(this));
 
   this.isWaitingForACreation = false;
   this.jobsWaitingForTheCreation = [];
@@ -53,7 +64,12 @@ Client.prototype.__submitNextJob = function() {
   var priority = job.priority || 'normal';
   var isBackground = job.isBackground || false;
 
-  this.server[submitJobMap[priority][isBackground]](queueBuffer, dataBuffer, identifierBuffer);
+  try {
+    this.server[submitJobMap[priority][isBackground]](queueBuffer, dataBuffer, identifierBuffer);
+  } catch(e) {
+    job.emit('error', e);
+    this.emit('error', e);
+  }
 };
 
 Client.prototype.submitJob = function(job) {
@@ -76,7 +92,7 @@ Client.prototype.handleResponseJobCreated = function(jobHandleBuffer) {
 };
 
 Client.prototype.handleWorkComplete = function(content) {
-	this.__emitEventWithWorkload('complete', content);
+	var jobHandleBuffer = this.__emitEventWithWorkload('complete', content);
   delete this.jobsWaitingForTheCompletion[jobHandleBuffer.toString('ascii')];
 };
 
@@ -122,15 +138,22 @@ Client.prototype.handleWorkWarning = function(content) {
 };
 
 Client.prototype.__emitEventWithWorkload = function(eventName, content) {
+
 	var indexes = BaseConnector.findNullBufferIndexes(content, 1);
+console.log(indexes);
+console.log(content);
 
   var jobHandleBuffer = content.slice(0, indexes[0]);
   var workloadBuffer = content.slice(indexes[0] + 1);
+
+console.log(this.jobsWaitingForTheCompletion, jobHandleBuffer.toString('ascii'));
 
   var job = this.jobsWaitingForTheCompletion[jobHandleBuffer.toString('ascii')];
   if (!job) throw new Error('No job found for ' + jobHandleBuffer.toString('ascii'));
 
   job.emit(eventName, workloadBuffer);
-}
+
+  return jobHandleBuffer;
+};
 
 module.exports = Client;

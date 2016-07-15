@@ -3,6 +3,8 @@
 var EventEmitter   = require('events').EventEmitter;
 var inherits = require('util').inherits;
 
+var getBuffer = require('./utils').getBuffer;
+
 function BaseConnector(server) {
   EventEmitter.apply(this);
 
@@ -37,10 +39,11 @@ BaseConnector.findNullBufferIndexes = function(buffer, expectedNullBufferNumber)
 	var arr = new Array(expectedNullBufferNumber);
 	var current = 0;
 	var i = -1;
-	while(expectedNullBufferNumber-- &&  i < buffer.length) {
+	while(i < buffer.length) {
 		i++;
 		if (buffer[i] !== 0x00) continue;
 		arr[current++] = i;
+    expectedNullBufferNumber--;
 	}
 	return arr;
 };

@@ -4,7 +4,7 @@ var Server = require('./Server');
 var Client = require('./Client');
 var Job = require('./Job');
 
-var server = new Server('127.0.0.1', 4730);
+var server = new Server('192.168.99.100', 32770);
 var client = new Client(server);
 
 function submitJob(i) {
@@ -39,23 +39,20 @@ server.on('socket-error', function(error) {
   console.log('socket-error', error);
 });
 server.on('socket-close', function(hadError) {
+
+  var job = Job.create('reverse', 'data');
+
+  job.on('error', function(e) {
+    console.log('JOB ERROR HANDLER', e);
+  });
+  client.submitJob(job);
+
   console.log('socket-close', hadError);
 });
 server.on('connect', function() {
 
-  client.on('option-response', function() {
-    console.log(arguments);
-  });
-  client.optionsRequest(Client.OPTION_REQUEST.EXCEPTION);
+  submitJob(1);
 
-  for (var i = 0; i < 1; i++) {
-    submitJob(i);
-  }
-
-  client.once('echo', function(content) {
-    console.log('QQQ', content.toString());
-  });
-  client.echo('pippo');
 });
 
 server.connect();

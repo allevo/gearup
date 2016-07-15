@@ -1,7 +1,6 @@
 'use strict';
 
 function log() {
-  return;
   console.log.apply(console, arguments);
 }
 
@@ -17,7 +16,7 @@ function getBuffer(str, options) {
 }
 
 function getBufferForTheLength(number, len) {
-  if (!len) len = Math.ceil(Math.log10(number) / Math.log10(BASE));
+  if (!len) len = Math.ceil(Math.log(number) / Math.log(BASE));
   // -Infinity
   if (len < 0) len = 0;
 
@@ -37,6 +36,7 @@ function getContentLengthFromBuffer(contentLengthBuffer) {
 
 module.exports = {
 	log: log,
+  NullCharBuffer: NullCharBuffer,
   getBuffer: getBuffer,
   getBufferForTheLength: getBufferForTheLength,
   getContentLengthFromBuffer: getContentLengthFromBuffer,
