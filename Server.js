@@ -152,16 +152,19 @@ Server.prototype.disconnect = function(callback) {
   // already disconnected
   if (!this.socket) return callback();
 
-  this.socket.once('end', function() {
+  const cleanup = function() {
     this.socket.destroy();
 
-    // cleanup
     this.worker = null;
     this.client = null;
     this.socket = null;
 
     callback();
-  }.bind(this));
+  }.bind(this);
+
+  if (this.socket.destroyed || !this.socket._handle) return cleanup();
+
+  this.socket.once('end', cleanup);
   this.socket.end();
 };
 
