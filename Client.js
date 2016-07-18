@@ -10,15 +10,23 @@ function Client(server) {
   BaseConnector.call(this, server);
   this.server.client = this;
 
-  this.server.on('socket-error', function(e) {
-    for(var i = 0; i < this.jobsWaitingForTheCreation.length; i++) {
+  this.server.once('socket-error', function(e) {
+    var i;
+    for(i = 0; i < this.jobsWaitingForTheCreation.length; i++) {
       this.jobsWaitingForTheCreation[i].emit('error', e);
     }
     for(i in this.jobsWaitingForTheCompletion) {
       this.jobsWaitingForTheCompletion[i].emit('error', e);
     }
-
+    this.server.client = null;
     this.emit('error', e);
+  }.bind(this));
+  this.server.once('socket-close', function(hadError) {
+    this.server.worker = null;
+    this.emit('close', hadError);
+  }.bind(this));
+  this.server.on('socket-timeout', function(hadError) {
+    this.emit('timeout', hadError);
   }.bind(this));
 
   this.isWaitingForACreation = false;

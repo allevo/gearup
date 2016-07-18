@@ -12,6 +12,16 @@ function Worker(server) {
   BaseConnector.call(this, server);
 
   this.server.worker = this;
+  this.server.once('socket-error', function(e) {
+    this.emit('error', e);
+  }.bind(this));
+  this.server.once('socket-close', function(hadError) {
+    this.server.worker = null;
+    this.emit('close', hadError);
+  }.bind(this));
+  this.server.on('socket-timeout', function(hadError) {
+    this.emit('timeout', hadError);
+  }.bind(this));
 
   this.functions = {};
 }

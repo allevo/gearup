@@ -109,10 +109,10 @@ Server.prototype.connect = function() {
     this.emit('connect');
   }.bind(this));
 
-  this.socket.on('error', function(error) {
+  this.socket.once('error', function(error) {
     this.emit('socket-error', error);
   }.bind(this));
-  this.socket.on('close', function(hadError) {
+  this.socket.once('close', function(hadError) {
     this.emit('socket-close', hadError);
   }.bind(this));
   this.socket.on('timeout', function(hadError) {
@@ -149,7 +149,16 @@ Server.prototype.connect = function() {
 };
 
 Server.prototype.disconnect = function(callback) {
-  this.socket.once('end', callback);
+  this.socket.once('end', function() {
+    this.socket.destroy();
+
+    // cleanup
+    this.worker = null;
+    this.client = null;
+    this.socket = null;
+
+    callback();
+  }.bind(this));
   this.socket.end();
 };
 
