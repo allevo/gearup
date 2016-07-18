@@ -284,7 +284,7 @@ Server.prototype.__write3Args = function(packageTypeBuffer, firstBuffer, secondB
 Server.prototype.writeToSocket = function(buffs) {
   utils.logger.debug('write to socket', buffs);
 
-  if (!this.socket.writable) return this.emit('error', new Error('Cannot write to unwritable socket'));
+  if (!this.socket || !this.socket.writable) throw new Error('Cannot write to unwritable socket');
 
   while(buffs.length) {
     this.socket.write(buffs.shift());

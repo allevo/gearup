@@ -1,6 +1,7 @@
 'use strict';
 
 var assert = require('assert');
+var EventEmitter = require('events');
 
 var Worker = require('../Worker');
 var Job = require('../Job');
@@ -9,12 +10,13 @@ describe('worker', function() {
   it('canDo', function() {
     var isCalledSync = false;
 
-    var w = new Worker({
-      canDo: function(fnName) {
-        assert.equal('pippo', fnName);
-        isCalledSync = true;
-      },
-    });
+    var server = new EventEmitter();
+    server.canDo = function(fnName) {
+      assert.equal('pippo', fnName);
+      isCalledSync = true;
+    };
+
+    var w = new Worker(server);
 
     var cbk = function() { };
 
@@ -27,12 +29,12 @@ describe('worker', function() {
   it('grab', function() {
     var isCalledSync = false;
 
-    var w = new Worker({
-      grab: function() {
-        isCalledSync = true;
-      },
-    });
+    var server = new EventEmitter();
+    server.grab = function() {
+      isCalledSync = true;
+    };
 
+    var w = new Worker(server);
     w.grab();
 
     assert.ok(isCalledSync);
@@ -41,12 +43,12 @@ describe('worker', function() {
   it('setClientId', function() {
     var isCalledSync = false;
 
-    var w = new Worker({
-      setClientId: function() {
-        isCalledSync = true;
-      },
-    });
+    var server = new EventEmitter();
+    server.setClientId = function() {
+      isCalledSync = true;
+    };
 
+    var w = new Worker(server);
     w.setClientId('pippo');
 
     assert.ok(isCalledSync);
@@ -55,7 +57,7 @@ describe('worker', function() {
   it('handleJobAssign', function() {
     var isCalledSync = false;
     // no action on server. skip mocking
-    var w = new Worker({});
+    var w = new Worker(new EventEmitter());
 
     w.functions.queueName = function queueCallback(job) {
       assert.ok(job instanceof Job);
@@ -79,12 +81,13 @@ describe('worker', function() {
 
   it('handleNoJob', function() {
     var isCalledSync = false;
-    var w = new Worker({
-      preSleep: function() {
-        isCalledSync = true;
-      },
-    });
 
+    var server = new EventEmitter();
+    server.preSleep = function(){
+      isCalledSync = true;
+    };
+
+    var w = new Worker(server);
     w.handleNoJob();
 
     assert.ok(isCalledSync);
@@ -92,12 +95,13 @@ describe('worker', function() {
 
   it('handleNoOp', function() {
     var isCalledSync = false;
-    var w = new Worker({
-      grab: function() {
-        isCalledSync = true;
-      },
-    });
 
+    var server = new EventEmitter();
+    server.grab = function(){
+      isCalledSync = true;
+    };
+
+    var w = new Worker(server);
     w.handleNoOp();
 
     assert.ok(isCalledSync);
@@ -105,12 +109,13 @@ describe('worker', function() {
 
   it('preSleep', function() {
     var isCalledSync = false;
-    var w = new Worker({
-      preSleep: function() {
-        isCalledSync = true;
-      },
-    });
 
+    var server = new EventEmitter();
+    server.preSleep = function(){
+      isCalledSync = true;
+    };
+
+    var w = new Worker(server);
     w.preSleep();
 
     assert.ok(isCalledSync);

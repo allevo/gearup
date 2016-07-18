@@ -19,7 +19,7 @@ function Worker(server) {
     this.server.worker = null;
     this.emit('close', hadError);
   }.bind(this));
-  this.server.on('socket-timeout', function(hadError) {
+  this.server.once('socket-timeout', function(hadError) {
     this.emit('timeout', hadError);
   }.bind(this));
 
@@ -37,17 +37,30 @@ Worker.prototype.canDo = function(queue, callback) {
 
   this.functions[queue] = callback;
 
-  this.server.canDo(getBuffer(queue));
+  try {
+    this.server.canDo(getBuffer(queue));
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 Worker.prototype.grab = function() {
   utils.logger.debug('grab');
-  this.server.grab();
+
+  try {
+    this.server.grab();
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 Worker.prototype.setClientId = function(id) {
   utils.logger.info('setClientId', id);
-  this.server.setClientId(getBuffer(id + ''));
+  try {
+    this.server.setClientId(getBuffer(id + ''));
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 Worker.prototype.handleJobAssign = function(content) {
@@ -90,7 +103,11 @@ Worker.prototype.handleNoOp = function() {
 
 Worker.prototype.preSleep = function() {
   utils.logger.info('preSleep');
-  this.server.preSleep();
+  try {
+    this.server.preSleep();
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 module.exports = Worker;

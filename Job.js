@@ -21,27 +21,51 @@ inherits(Job, EventEmitter);
 
 
 Job.prototype.success = function(response) {
-  this.server.workComplete(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+  try {
+    this.server.workComplete(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 Job.prototype.fail = function() {
-  this.server.workFail(getBuffer(this.jobHandle));
+  try {
+    this.server.workFail(getBuffer(this.jobHandle));
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 Job.prototype.exception = function(response) {
-  this.server.workException(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+  try {
+    this.server.workException(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 Job.prototype.data = function(response) {
-  this.server.workData(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+  try {
+    this.server.workData(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 Job.prototype.warning = function(response) {
-  this.server.workWarning(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+  try {
+    this.server.workWarning(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 Job.prototype.status = function(numerator, denominator) {
-  this.server.workStatus(
-    getBuffer(this.jobHandle),
-    getBufferForTheLength(numerator),
-    getBufferForTheLength(denominator)
-  );
+  try {
+    this.server.workStatus(
+      getBuffer(this.jobHandle),
+      getBufferForTheLength(numerator),
+      getBufferForTheLength(denominator)
+    );
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 Job.create = function(queue, workload) {
