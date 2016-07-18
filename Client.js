@@ -25,8 +25,8 @@ function Client(server) {
     this.server.worker = null;
     this.emit('close', hadError);
   }.bind(this));
-  this.server.on('socket-timeout', function(hadError) {
-    this.emit('timeout', hadError);
+  this.server.on('socket-timeout', function() {
+    this.emit('timeout');
   }.bind(this));
 
   this.isWaitingForACreation = false;

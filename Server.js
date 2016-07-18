@@ -115,8 +115,8 @@ Server.prototype.connect = function() {
   this.socket.once('close', function(hadError) {
     this.emit('socket-close', hadError);
   }.bind(this));
-  this.socket.on('timeout', function(hadError) {
-    this.emit('socket-timeout', hadError);
+  this.socket.on('timeout', function() {
+    this.emit('socket-timeout');
   }.bind(this));
 
   var pre = new Buffer(0);
