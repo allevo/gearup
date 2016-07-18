@@ -149,6 +149,9 @@ Server.prototype.connect = function() {
 };
 
 Server.prototype.disconnect = function(callback) {
+  // already disconnected
+  if (!this.socket) return callback();
+
   this.socket.once('end', function() {
     this.socket.destroy();
 
