@@ -5,14 +5,11 @@
 		"sourceType": "module"
 	},
     "env": {
-    	"node": true
+    	"node": true,
+    	"mocha": true
     },
 	"rules": {
 		"comma-dangle": ["error", "always-multiline"],
 		"no-console": ["error", { allow: ["warn", "error"] }]
-	},
-	"globals": {
-		"Set": true,
-		"Promise": true
 	}
 }

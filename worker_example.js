@@ -1,45 +1,26 @@
+/* eslint-disable no-console */
 'use strict';
 
 
 var Server = require('./Server');
 var Worker = require('./Worker');
 
-var server = new Server('127.0.0.1', 4730);
+var server = new Server('192.168.99.100', 32769);
 var worker = new Worker(server);
 
 server.on('connect', function() {
 
   worker.canDo('reverse', function(job) {
-    console.log('handle reverse');
-    //job.status(0, 2);
+    console.log('handle reverse', job.jobHandle, job.workload);
 
     setTimeout(function() {
-      console.log('send data');
-      job.warning('pippo');
-    }, 200);
 
-    setTimeout(function() {
-      job.status(2, 2);
-      job.exception('pippo');
+      job.success('pippo');
+
+      worker.grab();
     }, 400);
   });
 
-  worker.preSleep();
-
-  worker.on('option-response', function() {
-    console.log(arguments);
-  });
-  worker.optionsRequest(Worker.OPTION_REQUEST.EXCEPTION);
-
-
-
-  /*
-  worker.once('echo', function(content) {
-    console.log('QQQ', content.toString());
-  });
-  worker.echo('pippo');
-  */
-
-  //worker.setClientId(22);
+  worker.grab();
 });
 server.connect();

@@ -6,8 +6,10 @@ var inherits = require('util').inherits;
 
 var protocol = require('./protocol');
 
-var getBufferForTheLength = require('./utils').getBufferForTheLength;
-var getContentLengthFromBuffer = require('./utils').getContentLengthFromBuffer;
+var utils = require('./utils');
+var getBufferForTheLength = utils.getBufferForTheLength;
+var getContentLengthFromBuffer = utils.getContentLengthFromBuffer;
+var nullBuffer = utils.NullCharBuffer;
 
 function Server(host, port) {
   EventEmitter.apply(this);
@@ -23,58 +25,76 @@ function Server(host, port) {
 inherits(Server, EventEmitter);
 
 Server.prototype.submitlJobLowBackground = function(queueBuffer, dataBuffer, identifierBuffer) {
-	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_LOW_BG, queueBuffer, dataBuffer, identifierBuffer);
+  utils.logger.info('SUBMIT_JOB_LOW_BG');
+  this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_LOW_BG, queueBuffer, identifierBuffer, dataBuffer);
 };
 Server.prototype.submitlJobLow = function(queueBuffer, dataBuffer, identifierBuffer) {
-	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_LOW, queueBuffer, dataBuffer, identifierBuffer);
+  utils.logger.info('SUBMIT_JOB_LOW');
+  this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_LOW, queueBuffer, identifierBuffer, dataBuffer);
 };
 Server.prototype.submitlJobHighBackground = function(queueBuffer, dataBuffer, identifierBuffer) {
-	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_HIGH_BG, queueBuffer, dataBuffer, identifierBuffer);
+  utils.logger.info('SUBMIT_JOB_HIGH_BG');
+  this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_HIGH_BG, queueBuffer, identifierBuffer, dataBuffer);
 };
 Server.prototype.submitlJobHigh = function(queueBuffer, dataBuffer, identifierBuffer) {
-	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_HIGH, queueBuffer, dataBuffer, identifierBuffer);
+  utils.logger.info('SUBMIT_JOB_HIGH');
+  this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_HIGH, queueBuffer, identifierBuffer, dataBuffer);
 };
 Server.prototype.submitlJobNormalBackground = function(queueBuffer, dataBuffer, identifierBuffer) {
-	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_BG, queueBuffer, dataBuffer, identifierBuffer);
+  utils.logger.info('SUBMIT_JOB_BG');
+  this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_BG, queueBuffer, identifierBuffer, dataBuffer);
 };
 Server.prototype.submitlJobNormal = function(queueBuffer, dataBuffer, identifierBuffer) {
-	this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB, queueBuffer, dataBuffer, identifierBuffer);
+  utils.logger.info('SUBMIT_JOB');
+  this.__write3Args(protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB, queueBuffer, identifierBuffer, dataBuffer);
 };
 Server.prototype.canDo = function(queueBuffer) {
-	this.__write1Args(protocol.REQUEST_PACKET_TYPE.CAN_DO, queueBuffer);
+  utils.logger.info('CAN_DO');
+  this.__write1Args(protocol.REQUEST_PACKET_TYPE.CAN_DO, queueBuffer);
 };
 Server.prototype.grab = function() {
-	this.__write0Args(protocol.REQUEST_PACKET_TYPE.GRAB);
+  utils.logger.info('GRAB');
+  this.__write0Args(protocol.REQUEST_PACKET_TYPE.GRAB);
 };
 Server.prototype.preSleep = function() {
-	this.__write0Args(protocol.REQUEST_PACKET_TYPE.PRE_SLEEP);
+  utils.logger.info('PRE_SLEEP');
+  this.__write0Args(protocol.REQUEST_PACKET_TYPE.PRE_SLEEP);
 };
 Server.prototype.workStatus = function(jobHadleBuffer, numeratorBuffer, denominatorBuffer) {
-	this.__write3Args(protocol.REQUEST_PACKET_TYPE.WORK_STATUS, jobHadleBuffer, numeratorBuffer, denominatorBuffer);
+  utils.logger.info('WORK_STATUS');
+  this.__write3Args(protocol.REQUEST_PACKET_TYPE.WORK_STATUS, jobHadleBuffer, numeratorBuffer, denominatorBuffer);
 };
 Server.prototype.workComplete = function(jobHadleBuffer, responseBuffer) {
-	this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_COMPLETE, jobHadleBuffer, responseBuffer);
+  utils.logger.info('WORK_COMPLETE');
+  this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_COMPLETE, jobHadleBuffer, responseBuffer);
 };
 Server.prototype.workFail = function(jobHadleBuffer) {
-	this.__write1Args(protocol.REQUEST_PACKET_TYPE.WORK_FAIL, jobHadleBuffer);
+  utils.logger.info('WORK_FAIL');
+  this.__write1Args(protocol.REQUEST_PACKET_TYPE.WORK_FAIL, jobHadleBuffer);
 };
 Server.prototype.workException = function(jobHadleBuffer, responseBuffer) {
-	this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_EXCEPTION, jobHadleBuffer, responseBuffer);
+  utils.logger.info('WORK_EXCEPTION');
+  this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_EXCEPTION, jobHadleBuffer, responseBuffer);
 };
 Server.prototype.workData = function(jobHadleBuffer, responseBuffer) {
-	this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_DATA, jobHadleBuffer, responseBuffer);
+  utils.logger.info('WORK_DATA');
+  this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_DATA, jobHadleBuffer, responseBuffer);
 };
 Server.prototype.workWarning = function(jobHadleBuffer, responseBuffer) {
-	this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_WARNING, jobHadleBuffer, responseBuffer);
+  utils.logger.info('WORK_WARNING');
+  this.__write2Args(protocol.REQUEST_PACKET_TYPE.WORK_WARNING, jobHadleBuffer, responseBuffer);
 };
 Server.prototype.echo = function(dataBuffer) {
-	this.__write1Args(protocol.REQUEST_PACKET_TYPE.ECHO, dataBuffer);
+  utils.logger.info('ECHO');
+  this.__write1Args(protocol.REQUEST_PACKET_TYPE.ECHO, dataBuffer);
 };
 Server.prototype.setClientId = function(idBuffer) {
-	this.__write1Args(protocol.REQUEST_PACKET_TYPE.SET_CLIENT_ID, idBuffer);
+  utils.logger.info('SET_CLIENT_ID');
+  this.__write1Args(protocol.REQUEST_PACKET_TYPE.SET_CLIENT_ID, idBuffer);
 };
 Server.prototype.optionsRequest = function(optionBuffer) {
-	this.__write1Args(protocol.REQUEST_PACKET_TYPE.OPTION_REQ, optionBuffer);
+  utils.logger.info('OPTION_REQ');
+  this.__write1Args(protocol.REQUEST_PACKET_TYPE.OPTION_REQ, optionBuffer);
 };
 
 Server.prototype.connect = function() {
@@ -89,20 +109,20 @@ Server.prototype.connect = function() {
     this.emit('connect');
   }.bind(this));
 
-  this.socket.on('error', function(error) {
+  this.socket.once('error', function(error) {
     this.emit('socket-error', error);
   }.bind(this));
-  this.socket.on('close', function(hadError) {
+  this.socket.once('close', function(hadError) {
     this.emit('socket-close', hadError);
   }.bind(this));
-  this.socket.on('timeout', function(hadError) {
-    this.emit('socket-timeout', hadError);
+  this.socket.on('timeout', function() {
+    this.emit('socket-timeout');
   }.bind(this));
 
   var pre = new Buffer(0);
   function readData(buff) {
-  	if (buff) pre = Buffer.concat([pre, buff]);
-  	// no enough data
+    if (buff) pre = Buffer.concat([pre, buff]);
+    // no enough data
     if (pre.length < protocol.MINIMUN_PACKET_LENGTH) return;
 
     var responseHeader = pre.slice(0, 4);
@@ -128,33 +148,53 @@ Server.prototype.connect = function() {
   this.socket.on('data', readDataBinded);
 };
 
+Server.prototype.disconnect = function(callback) {
+  // already disconnected
+  if (!this.socket) return callback();
+
+  const cleanup = function() {
+    this.socket.destroy();
+
+    this.worker = null;
+    this.client = null;
+    this.socket = null;
+
+    callback();
+  }.bind(this);
+
+  if (this.socket.destroyed || !this.socket._handle) return cleanup();
+
+  this.socket.once('end', cleanup);
+  this.socket.end();
+};
+
 var responseTypeMap = {
-	JOB_CREATED: 'handleResponseJobCreated',
-	JOB_ASSIGN: 'handleJobAssign',
-	NO_JOB: 'handleNoJob',
-	NOOP: 'handleNoOp',
-	WORK_COMPLETE: 'handleWorkComplete',
-	WORK_STATUS: 'handleWorkStatus',
-	WORK_FAIL: 'handleWorkFail',
-	WORK_EXCEPTION: 'handleWorkException',
-	WORK_DATA: 'handleWorkData',
-	WORK_WARNING: 'handleWorkWarning',
-	ECHO: 'handleEcho',
-	OPTION_RES: 'handleOptionResponse',
+  JOB_CREATED: 'handleResponseJobCreated',
+  JOB_ASSIGN: 'handleJobAssign',
+  NO_JOB: 'handleNoJob',
+  NOOP: 'handleNoOp',
+  WORK_COMPLETE: 'handleWorkComplete',
+  WORK_STATUS: 'handleWorkStatus',
+  WORK_FAIL: 'handleWorkFail',
+  WORK_EXCEPTION: 'handleWorkException',
+  WORK_DATA: 'handleWorkData',
+  WORK_WARNING: 'handleWorkWarning',
+  ECHO: 'handleEcho',
+  OPTION_RES: 'handleOptionResponse',
 };
 Server.prototype.handleResponse = function(responseTypeBuffer, content) {
-  console.log('handleResponse', responseTypeBuffer, content);
-
   var hexRepresentation = responseTypeBuffer.toString('hex');
   if (!protocol.RESPONSE_PACKET_TYPE.hasOwnProperty(hexRepresentation)) {
-    console.log(responseTypeBuffer.toString('ascii'), content.toString('ascii'));
-    throw new Error('Not implemented: ' + responseTypeBuffer.toString('hex'));
+    utils.logger.error(responseTypeBuffer, content);
+    return this.emit('not-implemented', responseTypeBuffer);
   }
   var responsePacketType = protocol.RESPONSE_PACKET_TYPE[hexRepresentation];
 
+  utils.logger.info('handleResponse', responsePacketType, content);
+
   if (!responseTypeMap.hasOwnProperty(responsePacketType)) {
-    console.log(responseTypeBuffer.toString('ascii'), content.toString('ascii'));
-    throw new Error('Not implemented: ' + responseTypeBuffer.toString('hex'));
+    utils.logger.error('Not implemented', responseTypeBuffer, content);
+    return this.emit('not-implemented', responseTypeBuffer);
   }
   this[responseTypeMap[responsePacketType]](content);
 };
@@ -204,47 +244,51 @@ Server.prototype.handleOptionResponse = function(content) {
   }
 };
 
-
 Server.prototype.__write0Args = function(packageTypeBuffer) {
-  this.writeToSocket(Buffer.concat([
+  this.writeToSocket([
     protocol.REQUEST_HEADER,
     packageTypeBuffer,
     getBufferForTheLength(0, 4),
-  ]));
+  ]);
 };
 Server.prototype.__write1Args = function(packageTypeBuffer, firstBuffer) {
-  this.writeToSocket(Buffer.concat([
+  this.writeToSocket([
     protocol.REQUEST_HEADER,
     packageTypeBuffer,
-    getBufferForTheLength(firstBuffer.length),
+    getBufferForTheLength(firstBuffer.length, 4),
     firstBuffer,
-  ]));
+  ]);
 };
 Server.prototype.__write2Args = function(packageTypeBuffer, firstBuffer, secondBuffer) {
-  this.writeToSocket(Buffer.concat([
+  this.writeToSocket([
     protocol.REQUEST_HEADER,
     packageTypeBuffer,
-    getBufferForTheLength(firstBuffer.length + secondBuffer.length + 1),
+    getBufferForTheLength(firstBuffer.length + secondBuffer.length + 1, 4),
     firstBuffer,
     nullBuffer,
     secondBuffer,
-  ]));
+  ]);
 };
 Server.prototype.__write3Args = function(packageTypeBuffer, firstBuffer, secondBuffer, thirdBuffer) {
-  this.writeToSocket(Buffer.concat([
+  this.writeToSocket([
     protocol.REQUEST_HEADER,
     packageTypeBuffer,
-    getBufferForTheLength(firstBuffer.length + secondBuffer.length + thirdBuffer.length + 2),
+    getBufferForTheLength(firstBuffer.length + secondBuffer.length + thirdBuffer.length + 2, 4),
     firstBuffer,
     nullBuffer,
     secondBuffer,
     nullBuffer,
     thirdBuffer,
-  ]));
+  ]);
 };
-Server.prototype.writeToSocket = function(buff) {
-  console.log('write to socket', buff);
-  this.socket.write(buff);
+Server.prototype.writeToSocket = function(buffs) {
+  utils.logger.debug('write to socket', buffs);
+
+  if (!this.socket || !this.socket.writable) throw new Error('Cannot write to unwritable socket');
+
+  while(buffs.length) {
+    this.socket.write(buffs.shift());
+  }
 };
 
 module.exports = Server;

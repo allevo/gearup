@@ -3,13 +3,25 @@
 var BaseConnector   = require('./BaseConnector');
 var inherits = require('util').inherits;
 
-var getBuffer = require('./utils').getBuffer;
+
+var utils = require('./utils');
+var getBuffer = utils.getBuffer;
 var Job = require('./Job');
 
 function Worker(server) {
-  BaseConnector.apply(this, server);
+  BaseConnector.call(this, server);
 
   this.server.worker = this;
+  this.server.once('socket-error', function(e) {
+    this.emit('error', e);
+  }.bind(this));
+  this.server.once('socket-close', function(hadError) {
+    this.server.worker = null;
+    this.emit('close', hadError);
+  }.bind(this));
+  this.server.once('socket-timeout', function() {
+    this.emit('timeout');
+  }.bind(this));
 
   this.functions = {};
 }
@@ -21,20 +33,39 @@ Worker.OPTION_REQUEST = {
 Object.freeze(Worker.OPTION_REQUEST);
 
 Worker.prototype.canDo = function(queue, callback) {
+  utils.logger.info('canDo', queue);
+
   this.functions[queue] = callback;
 
-  this.server.canDo(getBuffer(queue));
+  try {
+    this.server.canDo(getBuffer(queue));
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 Worker.prototype.grab = function() {
-  this.server.grab();
+  utils.logger.debug('grab');
+
+  try {
+    this.server.grab();
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 Worker.prototype.setClientId = function(id) {
-  this.server.setClientId(getBuffer(id + ''));
+  utils.logger.info('setClientId', id);
+  try {
+    this.server.setClientId(getBuffer(id + ''));
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 Worker.prototype.handleJobAssign = function(content) {
+  utils.logger.info('handleJobAssign');
+
   var jobHandleEndIndex = -1;
   var queueEndIndex = -1;
   for (var i = 0; i < content.length; i++) {
@@ -51,27 +82,32 @@ Worker.prototype.handleJobAssign = function(content) {
   var queue = queueBuffer.toString('ascii');
 
   var callback = this.functions[queue];
-  if (!callback) throw new Error('Unknown queue: ' + queue);
+  if (!callback) return this.emit('unknown-queue', queue);
 
   var job = Job.create(queue, workloadBuffer);
   job.jobHandle = jobHandle;
   job.server = this.server;
 
   callback(job);
-
-  this.grab();
 };
 
 Worker.prototype.handleNoJob = function() {
+  utils.logger.info('handleNoJob');
   this.preSleep();
 };
 
 Worker.prototype.handleNoOp = function() {
+  utils.logger.info('handleNoOp');
   this.grab();
 };
 
 Worker.prototype.preSleep = function() {
-  this.server.preSleep();
+  utils.logger.info('preSleep');
+  try {
+    this.server.preSleep();
+  } catch(e) {
+    this.emit('error', e);
+  }
 };
 
 module.exports = Worker;
