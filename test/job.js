@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('assert');
-var EventEmitter = require('events');
+var EventEmitter = require('events').EventEmitter;
 
 var Job = require('../Job');
 
