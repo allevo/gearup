@@ -8,6 +8,9 @@ var Client = require('../Client');
 var Worker = require('../Worker');
 var Job = require('../Job');
 
+function createServer() {
+  return new Server(process.env.GEARMAN_HOST, parseInt(process.env.GEARMAN_PORT, 10));
+}
 
 function getRandomQueueName() {
   return randomstring.generate();
@@ -15,7 +18,7 @@ function getRandomQueueName() {
 
 describe('behaviour', function() {
   it('submit job', function(done) {
-    var s = new Server('127.0.0.1', 4730);
+    var s = createServer(); // new Server('127.0.0.1', 4730);
 
     s.on('connect', function() {
       var c = new Client(s);
@@ -33,7 +36,7 @@ describe('behaviour', function() {
   });
 
   it('submit job background', function(done) {
-    var s = new Server('127.0.0.1', 4730);
+    var s = createServer(); // new Server('127.0.0.1', 4730);
 
     s.on('connect', function() {
       var c = new Client(s);
@@ -52,7 +55,7 @@ describe('behaviour', function() {
   });
 
   it('submit job low', function(done) {
-    var s = new Server('127.0.0.1', 4730);
+    var s = createServer(); // new Server('127.0.0.1', 4730);
 
     s.on('connect', function() {
       var c = new Client(s);
@@ -71,7 +74,7 @@ describe('behaviour', function() {
   });
 
   it('submit job low background', function(done) {
-    var s = new Server('127.0.0.1', 4730);
+    var s = createServer(); // new Server('127.0.0.1', 4730);
 
     s.on('connect', function() {
       var c = new Client(s);
@@ -91,7 +94,7 @@ describe('behaviour', function() {
   });
 
   it('submit job high', function(done) {
-    var s = new Server('127.0.0.1', 4730);
+    var s = createServer(); // new Server('127.0.0.1', 4730);
 
     s.on('connect', function() {
       var c = new Client(s);
@@ -110,7 +113,7 @@ describe('behaviour', function() {
   });
 
   it('submit job high background', function(done) {
-    var s = new Server('127.0.0.1', 4730);
+    var s = createServer(); // new Server('127.0.0.1', 4730);
 
     s.on('connect', function() {
       var c = new Client(s);
@@ -130,7 +133,7 @@ describe('behaviour', function() {
   });
 
   it('submit job high background', function(done) {
-    var s = new Server('127.0.0.1', 4730);
+    var s = createServer(); // new Server('127.0.0.1', 4730);
 
     s.on('connect', function() {
       var c = new Client(s);
@@ -152,9 +155,9 @@ describe('behaviour', function() {
   it('complete flow ok', function(done) {
     var queueName = getRandomQueueName();
 
-    var ws = new Server('127.0.0.1', 4730);
+    var ws = createServer(); // new Server('127.0.0.1', 4730);
     var w = new Worker(ws);
-    var cs = new Server('127.0.0.1', 4730);
+    var cs = createServer(); // new Server('127.0.0.1', 4730);
     var c = new Client(cs);
 
     var job = Job.create(queueName, 'data');
@@ -225,9 +228,9 @@ describe('behaviour', function() {
   it('complete flow fail', function(done) {
     var queueName = getRandomQueueName();
 
-    var ws = new Server('127.0.0.1', 4730);
+    var ws = createServer(); // new Server('127.0.0.1', 4730);
     var w = new Worker(ws);
-    var cs = new Server('127.0.0.1', 4730);
+    var cs = createServer(); // new Server('127.0.0.1', 4730);
     var c = new Client(cs);
 
     var job = Job.create(queueName, 'data');
@@ -296,9 +299,9 @@ describe('behaviour', function() {
   it('complete flow exception', function(done) {
     var queueName = getRandomQueueName();
 
-    var ws = new Server('127.0.0.1', 4730);
+    var ws = createServer(); // new Server('127.0.0.1', 4730);
     var w = new Worker(ws);
-    var cs = new Server('127.0.0.1', 4730);
+    var cs = createServer(); // new Server('127.0.0.1', 4730);
     var c = new Client(cs);
 
     var job = Job.create(queueName, 'data');
@@ -366,5 +369,75 @@ describe('behaviour', function() {
       cs.connect();
     });
     ws.connect();
+  });
+
+  describe('worker', function() {
+    before(function(done) {
+      this.queueName = getRandomQueueName();
+
+      var cs = createServer(); // new Server('192.168.99.100', 32768);
+      var c = new Client(cs);
+
+      cs.on('connect', function() {
+        var n = 0;
+        function submittedCallback() {
+          n++;
+          if (n >= 10) {
+            return done();
+          }
+        }
+
+        for(var i = 0; i < 10; i++) {
+          var job = Job.create(this.queueName, 'data' + i);
+          job.isBackground = true;
+          job.on('submitted', submittedCallback);
+          c.submitJob(job);
+        }
+      }.bind(this));
+      cs.connect();
+    });
+
+    it('requeue', function(done) {
+      var queueName = getRandomQueueName();
+
+      var ws = createServer(); // new Server('192.168.99.100', 32768);
+      var w = new Worker(ws);
+
+      var cs = createServer(); // new Server('192.168.99.100', 32768);
+      var c = new Client(cs);
+
+      cs.on('connect', function() {
+        ws.on('connect', function() {
+          var n = 0;
+          var rn = 0;
+          w.canDo(this.queueName, function(job) {
+            setTimeout(function() {
+              assert.equal(job.workload.toString('ascii'), 'data' + n);
+              n++;
+
+              var j = Job.create(queueName, 'received:' + job.workload.toString('ascii'));
+              j.isBackground = true;
+              c.submitJob(j);
+
+              job.success('');
+
+              if (n <= 10) w.grab();
+            }, 10);
+          });
+
+          w.canDo(queueName, function(job) {
+            rn++;
+
+            job.success('');
+
+            w.grab();
+            if (rn >= 10) done();
+          });
+          w.grab();
+        }.bind(this));
+        ws.connect();
+      }.bind(this));
+      cs.connect();
+    })
   });
 });
