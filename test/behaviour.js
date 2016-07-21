@@ -438,6 +438,76 @@ describe('behaviour', function() {
         ws.connect();
       }.bind(this));
       cs.connect();
-    })
+    });
+  });
+
+  it('check encoding: utf8', function(done) {
+    var queueName = getRandomQueueName();
+
+    var ws = new Server('127.0.0.1', 4730);
+    var w = new Worker(ws);
+    var cs = new Server('127.0.0.1', 4730);
+    var c = new Client(cs);
+
+    var data = '激光, 這兩個字是甚麼意思';
+
+    var job = Job.create(queueName, data);
+
+    job.on('complete', function(response) {
+      assert.deepEqual(response.toString('utf8'), data);
+
+      ws.disconnect(done);
+    });
+
+    ws.on('connect', function() {
+      w.canDo(queueName, function(job) {
+        assert.deepEqual(job.workload.toString('utf8'), data);
+
+        job.success(data);
+
+      });
+      w.grab();
+
+      cs.on('connect', function() {
+        c.submitJob(job);
+      });
+      cs.connect();
+    });
+    ws.connect();
+  });
+
+  it('check encoding: png', function(done) {
+    var queueName = getRandomQueueName();
+
+    var ws = new Server('127.0.0.1', 4730);
+    var w = new Worker(ws);
+    var cs = new Server('127.0.0.1', 4730);
+    var c = new Client(cs);
+
+    var data = require('fs').readFileSync(__dirname + '/data/img.png');
+
+    var job = Job.create(queueName, data);
+
+    job.on('complete', function(response) {
+      assert.deepEqual(response, data);
+
+      ws.disconnect(done);
+    });
+
+    ws.on('connect', function() {
+      w.canDo(queueName, function(job) {
+        assert.deepEqual(job.workload, data);
+
+        job.success(data);
+
+      });
+      w.grab();
+
+      cs.on('connect', function() {
+        c.submitJob(job);
+      });
+      cs.connect();
+    });
+    ws.connect();
   });
 });
