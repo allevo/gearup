@@ -1,4 +1,7 @@
 # GearmanLib
+[![Build Status](https://travis-ci.org/allevo/gearup.svg?branch=master)](https://travis-ci.org/allevo/gearup)
+[![Coverage Status](https://coveralls.io/repos/github/allevo/gearup/badge.svg?branch=master)](https://coveralls.io/github/allevo/gearup?branch=master)
+
 This library implements the gearman protocol as simple as possible.
 The gearman protocol can be found here http://gearman.org/protocol/
 
