@@ -1,6 +1,6 @@
 {
   "name": "gearup",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Gearman client and worker library",
   "author": "allevo",
   "license": "MIT",
