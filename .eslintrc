@@ -9,6 +9,7 @@
     },
 	"rules": {
 		"comma-dangle": ["error", "always-multiline"],
+		"indent": ["error", 2],
 		"no-console": ["error", { allow: ["warn", "error"] }]
 	},
 	"globals": {

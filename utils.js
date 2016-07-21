@@ -1,5 +1,6 @@
 'use strict';
 
+/* istanbul ignore next */
 function setLogger(logger) {
   module.exports.logger = logger;
 }

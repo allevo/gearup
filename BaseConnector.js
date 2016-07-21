@@ -10,15 +10,13 @@ function BaseConnector(server) {
 
   this.server = server;
   this.isSettingOption = false;
+  this.isEchoing = false;
 }
 inherits(BaseConnector, EventEmitter);
 
 BaseConnector.prototype.echo = function(workload) {
-  var workloadBuffer = Buffer.concat([
-    new Buffer([0x01]), // client request
-    getBuffer(workload),
-  ]);
-  this.server.echo(workloadBuffer);
+  this.isEchoing = true;
+  this.server.echo(getBuffer(workload));
 };
 
 BaseConnector.prototype.optionsRequest = function(option) {
@@ -27,6 +25,7 @@ BaseConnector.prototype.optionsRequest = function(option) {
 };
 
 BaseConnector.prototype.handleEcho = function(content) {
+  this.isEchoing = false;
   this.emit('echo', content);
 };
 
@@ -36,16 +35,16 @@ BaseConnector.prototype.handleOptionResponse = function(content) {
 };
 
 BaseConnector.findNullBufferIndexes = function(buffer, expectedNullBufferNumber) {
-	var arr = new Array(expectedNullBufferNumber);
-	var current = 0;
-	var i = -1;
-	while(i < buffer.length) {
-		i++;
-		if (buffer[i] !== 0x00) continue;
-		arr[current++] = i;
+  var arr = new Array(expectedNullBufferNumber);
+  var current = 0;
+  var i = -1;
+  while(i < buffer.length) {
+    i++;
+    if (buffer[i] !== 0x00) continue;
+    arr[current++] = i;
     expectedNullBufferNumber--;
-	}
-	return arr;
+  }
+  return arr;
 };
 
 module.exports = BaseConnector;

@@ -10,19 +10,24 @@ function Client(server) {
   BaseConnector.call(this, server);
   this.server.client = this;
 
-  this.server.once('socket-error', function(e) {
+  var self = this;
+  this.once('close', function() {
+    var error = new Error('Socket closed before ending the request')
     var i;
-    for(i = 0; i < this.jobsWaitingForTheCreation.length; i++) {
-      this.jobsWaitingForTheCreation[i].emit('error', e);
+    for(i = 0; i < self.jobsWaitingForTheCreation.length; i++) {
+      self.jobsWaitingForTheCreation[i].emit('error', error);
     }
-    for(i in this.jobsWaitingForTheCompletion) {
-      this.jobsWaitingForTheCompletion[i].emit('error', e);
+    for(i in self.jobsWaitingForTheCompletion) {
+      self.jobsWaitingForTheCompletion[i].emit('error', error);
     }
-    this.server.client = null;
+    self.server.client = null;
+  });
+
+  this.server.once('socket-error', function(e) {
     this.emit('error', e);
   }.bind(this));
   this.server.once('socket-close', function(hadError) {
-    this.server.worker = null;
+    this.server.client = null;
     this.emit('close', hadError);
   }.bind(this));
   this.server.on('socket-timeout', function() {
@@ -93,7 +98,7 @@ Client.prototype.handleResponseJobCreated = function(jobHandleBuffer) {
   utils.logger.info('handleResponseJobCreated');
 
   var job = this.jobsWaitingForTheCreation.shift();
-  if (!job) throw new Error('Not possible!!');
+  if (!job) return this.emit('error', new Error('Unknwon job'));
 
   job.jobHandle = jobHandleBuffer.toString('ascii');
 
@@ -109,7 +114,8 @@ Client.prototype.handleResponseJobCreated = function(jobHandleBuffer) {
 Client.prototype.handleWorkComplete = function(content) {
   utils.logger.info('handleWorkComplete');
 
-	var jobHandleBuffer = this.__emitEventWithWorkload('complete', content);
+  var jobHandleBuffer = this.__emitEventWithWorkload('complete', content);
+  if (!jobHandleBuffer) return;
   delete this.jobsWaitingForTheCompletion[jobHandleBuffer.toString('ascii')];
 };
 
@@ -117,7 +123,7 @@ Client.prototype.handleWorkFail = function(jobHandleBuffer) {
   utils.logger.info('handleWorkFail');
 
   var job = this.jobsWaitingForTheCompletion[jobHandleBuffer.toString('ascii')];
-  if (!job) throw new Error('No job found for ' + jobHandleBuffer.toString('ascii'));
+  if (!job) return this.emit('error', new Error('Unknwon job for handle ' + jobHandleBuffer.toString('ascii')));
 
   job.emit('fail');
 
@@ -134,16 +140,16 @@ function getIntFromBuffer(buff) {
 Client.prototype.handleWorkStatus = function(content) {
   utils.logger.info('handleWorkStatus');
 
-	var indexes = BaseConnector.findNullBufferIndexes(content, 2);
-	var jobHandleEndIndex = indexes[0];
-	var numeratorEndIndex = indexes[1];
+  var indexes = BaseConnector.findNullBufferIndexes(content, 2);
+  var jobHandleEndIndex = indexes[0];
+  var numeratorEndIndex = indexes[1];
 
   var jobHandleBuffer = content.slice(0, jobHandleEndIndex);
   var numeratorBuffer = content.slice(jobHandleEndIndex + 1, numeratorEndIndex);
   var denominatorBuffer = content.slice(numeratorEndIndex + 1);
 
   var job = this.jobsWaitingForTheCompletion[jobHandleBuffer.toString('ascii')];
-  if (!job) throw new Error('No job found for ' + jobHandleBuffer.toString('ascii'));
+  if (!job) return this.emit('error', new Error('Unknwon job for handle ' + jobHandleBuffer.toString('ascii')));
 
   job.emit('status', {
     numerator: getIntFromBuffer(numeratorBuffer),
@@ -153,27 +159,30 @@ Client.prototype.handleWorkStatus = function(content) {
 
 Client.prototype.handleWorkException = function(content) {
   utils.logger.info('handleWorkException');
-	this.__emitEventWithWorkload('exception', content);
+  this.__emitEventWithWorkload('exception', content);
 };
 
 Client.prototype.handleWorkData = function(content) {
   utils.logger.info('handleWorkData');
-	this.__emitEventWithWorkload('data', content);
+  this.__emitEventWithWorkload('data', content);
 };
 
 Client.prototype.handleWorkWarning = function(content) {
   utils.logger.info('handleWorkWarning');
-	this.__emitEventWithWorkload('warning', content);
+  this.__emitEventWithWorkload('warning', content);
 };
 
 Client.prototype.__emitEventWithWorkload = function(eventName, content) {
-	var indexes = BaseConnector.findNullBufferIndexes(content, 1);
+  var indexes = BaseConnector.findNullBufferIndexes(content, 1);
 
   var jobHandleBuffer = content.slice(0, indexes[0]);
   var workloadBuffer = content.slice(indexes[0] + 1);
 
   var job = this.jobsWaitingForTheCompletion[jobHandleBuffer.toString('ascii')];
-  if (!job) throw new Error('No job found for ' + jobHandleBuffer.toString('ascii'));
+  if (!job) {
+    this.emit('error', new Error('Unknwon job for handle ' + jobHandleBuffer.toString('ascii')));
+    return;
+  }
 
   job.emit(eventName, workloadBuffer);
 

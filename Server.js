@@ -233,16 +233,18 @@ Server.prototype.handleWorkWarning = function(content) {
   this.client.handleWorkWarning(content);
 };
 Server.prototype.handleEcho = function(content) {
-  if (content[0] === 0x01) {
-    this.client.handleEcho(content.slice(1));
-  } else {
-    this.worker.handleEcho(content.slice(1));
+  if (this.client && this.client.isEchoing) {
+    this.client.handleEcho(content);
+  }
+  if(this.worker && this.worker.isEchoing) {
+    this.worker.handleEcho(content);
   }
 };
 Server.prototype.handleOptionResponse = function(content) {
   if (this.client && this.client.isSettingOption) {
     this.client.handleOptionResponse(content);
-  } else if(this.worker && this.worker.isSettingOption) {
+  }
+  if(this.worker && this.worker.isSettingOption) {
     this.worker.handleOptionResponse(content);
   }
 };
