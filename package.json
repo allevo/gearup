@@ -1,8 +1,19 @@
 {
   "name": "gearup",
   "version": "1.1.0",
-  "description": "",
+  "description": "Gearman client and worker library",
+  "author": "allevo",
+  "license": "MIT",
   "main": "index.js",
+  "homepage": "https://github.com/allevo/gearup",
+  "bugs": {
+    "url": "https://github.com/allevo/confenv/gearup"
+  },
+  "keywords": [
+    "gearman",
+    "gearmand",
+    "queue"
+  ],
   "scripts": {
     "test": "npm run mocha && npm run lint",
     "mocha": "mocha test/",
@@ -11,8 +22,6 @@
     "travis": "npm run test && npm run coveralls",
     "coverage": "istanbul cover ./node_modules/.bin/_mocha -- test --report HTML"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "coveralls": "^2.11.11",
     "eslint": "^2.10.0",
