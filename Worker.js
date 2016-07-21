@@ -71,12 +71,14 @@ Worker.prototype.handleJobAssign = function(content) {
   for (var i = 0; i < content.length; i++) {
     if (content[i] !== 0) continue;
     if (jobHandleEndIndex === -1) jobHandleEndIndex = i;
-    else queueEndIndex = i;
+    else if(queueEndIndex === -1) queueEndIndex = i;
   }
+
 
   var jobHandleBuffer = content.slice(0, jobHandleEndIndex);
   var queueBuffer = content.slice(jobHandleEndIndex + 1, queueEndIndex);
   var workloadBuffer = content.slice(queueEndIndex + 1);
+
 
   var jobHandle = jobHandleBuffer.toString('ascii');
   var queue = queueBuffer.toString('ascii');

@@ -125,6 +125,7 @@ Server.prototype.connect = function() {
     // no enough data
     if (pre.length < protocol.MINIMUN_PACKET_LENGTH) return;
 
+
     var responseHeader = pre.slice(0, 4);
     // Invalid response!!
     if (responseHeader.toString('utf8') !== protocol.RESPONSE_HEADER_UTF8) throw new Error('Invalid header');
@@ -152,7 +153,7 @@ Server.prototype.disconnect = function(callback) {
   // already disconnected
   if (!this.socket) return callback();
 
-  const cleanup = function() {
+  var cleanup = function() {
     this.socket.destroy();
 
     this.worker = null;
@@ -184,6 +185,8 @@ var responseTypeMap = {
 };
 Server.prototype.handleResponse = function(responseTypeBuffer, content) {
   var hexRepresentation = responseTypeBuffer.toString('hex');
+
+
   if (!protocol.RESPONSE_PACKET_TYPE.hasOwnProperty(hexRepresentation)) {
     utils.logger.error(responseTypeBuffer, content);
     return this.emit('not-implemented', responseTypeBuffer);

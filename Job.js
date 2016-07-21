@@ -22,7 +22,7 @@ inherits(Job, EventEmitter);
 
 Job.prototype.success = function(response) {
   try {
-    this.server.workComplete(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+    this.server.workComplete(getBuffer(this.jobHandle), new Buffer(response, 'utf8'));
   } catch(e) {
     this.emit('error', e);
   }
@@ -36,21 +36,21 @@ Job.prototype.fail = function() {
 };
 Job.prototype.exception = function(response) {
   try {
-    this.server.workException(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+    this.server.workException(getBuffer(this.jobHandle), new Buffer(response, 'utf8'));
   } catch(e) {
     this.emit('error', e);
   }
 };
 Job.prototype.data = function(response) {
   try {
-    this.server.workData(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+    this.server.workData(getBuffer(this.jobHandle), new Buffer(response, 'utf8'));
   } catch(e) {
     this.emit('error', e);
   }
 };
 Job.prototype.warning = function(response) {
   try {
-    this.server.workWarning(getBuffer(this.jobHandle), new Buffer(response, 'ascii'));
+    this.server.workWarning(getBuffer(this.jobHandle), new Buffer(response, 'utf8'));
   } catch(e) {
     this.emit('error', e);
   }
