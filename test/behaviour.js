@@ -444,12 +444,12 @@ describe('behaviour', function() {
   it('check encoding: utf8', function(done) {
     var queueName = getRandomQueueName();
 
-    var ws = new Server('127.0.0.1', 4730);
+    var ws = createServer(); // new Server('127.0.0.1', 4730);
     var w = new Worker(ws);
-    var cs = new Server('127.0.0.1', 4730);
+    var cs = createServer(); // new Server('127.0.0.1', 4730);
     var c = new Client(cs);
 
-    var data = '激光, 這兩個字是甚麼意思';
+    var data = '激光, 這兩個字是甚麼意思\u05D0\u04A8Ԫ\u0616۞\u07A6\u0A8A\u0BA3☃✓♜  ♞ ♝ ♛ ♚ ♝ ♞ ♜';
 
     var job = Job.create(queueName, data);
 
