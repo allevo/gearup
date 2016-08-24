@@ -353,4 +353,21 @@ describe('client', function() {
     var client = new Client(createServer());
     client.connect(done);
   });
+
+  it('emit error', function() {
+    var c = new Client(new EventEmitter());
+
+    var errors = [];
+    c.on('error', function(e) {
+      errors.push(e);
+    });
+
+    var job = Job.create('queueName', 'the content!');
+    job.on('error', function(e) {
+      errors.push(e);
+    });
+    c.submitJob(job);
+
+    assert.equal(2, errors.length);
+  });
 });

@@ -101,7 +101,6 @@ Client.prototype.handleResponseJobCreated = function(jobHandleBuffer) {
 
   if (!job.isBackground) this.jobsWaitingForTheCompletion[job.jobHandle] = job;
 
-
   job.emit('submitted');
   this.__submitNextJob();
 };

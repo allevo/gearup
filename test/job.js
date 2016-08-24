@@ -155,5 +155,5 @@ describe('job', function() {
     job.status('data');
 
     assert.equal(6, errors.length);
-  })
+  });
 });
