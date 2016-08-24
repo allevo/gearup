@@ -30,7 +30,7 @@ function Client(server) {
     this.server.client = null;
     this.emit('close', hadError);
   }.bind(this));
-  this.server.on('socket-timeout', function() {
+  this.server.once('socket-timeout', function() {
     this.emit('timeout');
   }.bind(this));
 
@@ -40,12 +40,7 @@ function Client(server) {
   this.jobsWaitingForTheCompletion = {};
 }
 inherits(Client, BaseConnector);
-
-Client.OPTION_REQUEST = {
-  EXCEPTION: 'exceptions',
-};
-
-Object.freeze(Client.OPTION_REQUEST);
+Client.OPTION_REQUEST = BaseConnector.OPTION_REQUEST;
 
 var submitJobMap = {
   low: {
@@ -105,7 +100,6 @@ Client.prototype.handleResponseJobCreated = function(jobHandleBuffer) {
   this.isWaitingForACreation = false;
 
   if (!job.isBackground) this.jobsWaitingForTheCompletion[job.jobHandle] = job;
-
 
   job.emit('submitted');
   this.__submitNextJob();

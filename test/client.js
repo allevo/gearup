@@ -5,6 +5,11 @@ var EventEmitter = require('events').EventEmitter;
 
 var Client = require('../Client');
 var Job = require('../Job');
+var Server = require('../Server');
+
+function createServer() {
+  return new Server(process.env.GEARMAN_HOST, parseInt(process.env.GEARMAN_PORT, 10));
+}
 
 describe('client', function() {
   it('submitlJobNormal', function() {
@@ -342,5 +347,27 @@ describe('client', function() {
 
     assert.equal(1, Object.keys(c.jobsWaitingForTheCompletion).length);
     assert.ok(isCalledSync);
+  });
+
+  it('connect', function(done) {
+    var client = new Client(createServer());
+    client.connect(done);
+  });
+
+  it('emit error', function() {
+    var c = new Client(new EventEmitter());
+
+    var errors = [];
+    c.on('error', function(e) {
+      errors.push(e);
+    });
+
+    var job = Job.create('queueName', 'the content!');
+    job.on('error', function(e) {
+      errors.push(e);
+    });
+    c.submitJob(job);
+
+    assert.equal(2, errors.length);
   });
 });

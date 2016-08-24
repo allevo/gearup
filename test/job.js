@@ -136,4 +136,24 @@ describe('job', function() {
 
     assert.ok(isCalledSync);
   });
+
+  it('emit error', function() {
+    var job = Job.create('queueName', 'data');
+    job.jobHandle = 'handle';
+    job.server = new EventEmitter();
+
+    var errors = [];
+    job.on('error', function(e) {
+      errors.push(e);
+    })
+
+    job.success('data');
+    job.fail('data');
+    job.exception('data');
+    job.data('data');
+    job.warning('data');
+    job.status('data');
+
+    assert.equal(6, errors.length);
+  });
 });

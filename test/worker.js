@@ -120,4 +120,19 @@ describe('worker', function() {
 
     assert.ok(isCalledSync);
   });
+
+  it('emit error', function() {
+    var w = new Worker(new EventEmitter());
+
+    var errors = [];
+    w.on('error', function(e) {
+      errors.push(e);
+    })
+
+    w.canDo('Pippo', function() { });
+    w.grab();
+    w.setClientId('clientId');
+
+    assert.equal(3, errors.length);
+  });
 });
