@@ -27,7 +27,7 @@ function Client(server) {
     this.emit('error', e);
   }.bind(this));
   this.server.once('socket-close', function(hadError) {
-    this.server.client = null;
+    if (this.server) this.server.client = null;
     this.emit('close', hadError);
   }.bind(this));
   this.server.once('socket-timeout', function() {
