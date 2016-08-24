@@ -34,6 +34,19 @@ BaseConnector.prototype.handleOptionResponse = function(content) {
   this.emit('option-response', content);
 };
 
+BaseConnector.prototype.connect = function(_callback) {
+  var callback = _callback || function() {};
+  this.server.once('connect', callback);
+  this.server.connect();
+};
+
+BaseConnector.prototype.disconnect = function(_callback) {
+  var callback = _callback || function() {};
+  if (!this.server) return callback();
+  this.server.disconnect(callback);
+  this.server = null;
+};
+
 BaseConnector.findNullBufferIndexes = function(buffer, expectedNullBufferNumber) {
   var arr = new Array(expectedNullBufferNumber);
   var current = 0;
@@ -46,5 +59,10 @@ BaseConnector.findNullBufferIndexes = function(buffer, expectedNullBufferNumber)
   }
   return arr;
 };
+
+BaseConnector.OPTION_REQUEST = {
+  EXCEPTION: 'exceptions',
+};
+Object.freeze(BaseConnector.OPTION_REQUEST);
 
 module.exports = BaseConnector;

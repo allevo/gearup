@@ -6,11 +6,12 @@ var Server = require('./Server');
 var Client = require('./Client');
 var Job = require('./Job');
 
-var server = new Server('192.168.99.100', 32770);
-var client = new Client(server);
+var client = new Client(new Server('127.0.0.1', 4730));
 
 function submitJob(i) {
   var job = Job.create('reverse', 'data' + i);
+  // job.isBackground = true;
+  // job.priority = 'low';
 
   job.on('submitted', function() {
     console.log('submitted', job.jobHandle);
@@ -33,28 +34,24 @@ function submitJob(i) {
   job.on('complete', function(response) {
     console.log('complete', job.jobHandle, response.toString('ascii'));
   });
+  job.on('error', function(e) {
+    console.log('JOB ERROR HANDLER', e);
+  });
 
   client.submitJob(job);
 }
 
-server.on('socket-error', function(error) {
+client.on('error', function(error) {
   console.log('socket-error', error);
 });
-server.on('socket-close', function(hadError) {
-
-  var job = Job.create('reverse', 'data');
-
-  job.on('error', function(e) {
-    console.log('JOB ERROR HANDLER', e);
-  });
-  client.submitJob(job);
-
-  console.log('socket-close', hadError);
+client.on('close', function(hadError) {
+  console.log('close', hadError);
+  process.exit(1)
 });
-server.on('connect', function() {
+client.on('timeout', function() {
+  console.log('timeout');
+});
 
+client.connect(function() {
   submitJob(1);
-
 });
-
-server.connect();

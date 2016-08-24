@@ -149,12 +149,14 @@ Server.prototype.connect = function() {
   this.socket.on('data', readDataBinded);
 };
 
-Server.prototype.disconnect = function(callback) {
+Server.prototype.disconnect = function(_callback) {
+  var callback = _callback || function() { };
+
   // already disconnected
   if (!this.socket) return callback();
 
   var cleanup = function() {
-    this.socket.destroy();
+    if (this.socket) this.socket.destroy();
 
     this.worker = null;
     this.client = null;

@@ -5,11 +5,15 @@ var assert = require('assert');
 var Server = require('../Server');
 var protocol  = require('../protocol');
 
+function createServer() {
+  return new Server(process.env.GEARMAN_HOST, parseInt(process.env.GEARMAN_PORT, 10));
+}
+
 describe('server', function() {
   it('submitlJobLowBackground', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -33,7 +37,7 @@ describe('server', function() {
   it('submitlJobLow', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -57,7 +61,7 @@ describe('server', function() {
   it('submitlJobHighBackground', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -81,7 +85,7 @@ describe('server', function() {
   it('submitlJobHigh', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -105,7 +109,7 @@ describe('server', function() {
   it('submitlJobNormalBackground', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -129,7 +133,7 @@ describe('server', function() {
   it('submitlJobNormal', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -153,7 +157,7 @@ describe('server', function() {
   it('canDo', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -173,7 +177,7 @@ describe('server', function() {
   it('grab', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -192,7 +196,7 @@ describe('server', function() {
   it('preSleep', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -211,7 +215,7 @@ describe('server', function() {
   it('workStatus', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -235,7 +239,7 @@ describe('server', function() {
   it('workComplete', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -257,7 +261,7 @@ describe('server', function() {
   it('workFail', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -277,7 +281,7 @@ describe('server', function() {
   it('workException', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -299,7 +303,7 @@ describe('server', function() {
   it('workData', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -321,7 +325,7 @@ describe('server', function() {
   it('workWarning', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -343,7 +347,7 @@ describe('server', function() {
   it('echo', function() {
     var isCalledSync = false;
 
-    var server = new Server('127.0.0.1', 4730);
+    var server = createServer();
     server.writeToSocket = function(buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
@@ -358,5 +362,17 @@ describe('server', function() {
     server.echo(new Buffer('data echo'));
 
     assert.ok(isCalledSync);
+  });
+
+  it('diconnect', function(done) {
+    var server = createServer();
+    server.on('connect', function() {
+      server.disconnect(function() {
+        server.disconnect(done);
+      })
+      server.disconnect();
+      server.disconnect();
+    });
+    server.connect();
   });
 });

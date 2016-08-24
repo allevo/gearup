@@ -26,11 +26,7 @@ function Worker(server) {
   this.functions = {};
 }
 inherits(Worker, BaseConnector);
-
-Worker.OPTION_REQUEST = {
-  EXCEPTION: 'exceptions',
-};
-Object.freeze(Worker.OPTION_REQUEST);
+Worker.OPTION_REQUEST = BaseConnector.OPTION_REQUEST;
 
 Worker.prototype.canDo = function(queue, callback) {
   utils.logger.info('canDo', queue);
