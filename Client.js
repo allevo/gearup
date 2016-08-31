@@ -20,7 +20,7 @@ function Client(server) {
     for(i in self.jobsWaitingForTheCompletion) {
       self.jobsWaitingForTheCompletion[i].emit('error', error);
     }
-    self.server.client = null;
+    if (self.server) self.server.client = null;
   });
 
   this.server.once('socket-error', function(e) {
