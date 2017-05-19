@@ -144,12 +144,60 @@ describe('behaviour', function () {
         job.isBackground = true
         job.priority = 'high'
 
+        assert.ok(!job.jobHandle)
         job.on('submitted', function () {
           assert.ok(job.jobHandle)
 
           s.disconnect(done)
         })
         c.submitJob(job)
+      })
+      s.connect()
+    })
+
+    it('should wait the queuing', function (done) {
+      var s = createServer() // new Server('127.0.0.1', 4730);
+
+      s.on('connect', function () {
+        var c = new Client(s)
+
+        var job = Job.create('queueName', 'data')
+        job.isBackground = true
+        job.priority = 'high'
+
+        c.submitJob(job)
+
+        c.close(function () {
+          assert.ok(job.jobHandle)
+          done()
+        })
+      })
+      s.connect()
+    })
+
+    it('should emit error is client is closing', function (done) {
+      var s = createServer() // new Server('127.0.0.1', 4730);
+
+      s.on('connect', function () {
+        var c = new Client(s)
+
+        var job = Job.create('queueName', 'data')
+        job.isBackground = true
+        job.priority = 'high'
+        job.on('error', function (e) {
+          assert.fail('This job should correctly be handled', e)
+        })
+
+        c.submitJob(job)
+        c.close(function () {
+          assert.ok(job.jobHandle)
+        })
+        var job2 = Job.create('queueName', 'data')
+        job2.on('error', function (e) {
+          assert.ok(e instanceof Error)
+          done()
+        })
+        c.submitJob(job2)
       })
       s.connect()
     })

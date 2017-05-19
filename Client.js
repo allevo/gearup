@@ -9,6 +9,7 @@ var getBuffer = utils.getBuffer
 function Client (server) {
   BaseConnector.call(this, server)
   this.server.client = this
+  this.isClosing = false
 
   var self = this
   this.once('close', function () {
@@ -83,6 +84,8 @@ Client.prototype.__submitNextJob = function () {
 }
 
 Client.prototype.submitJob = function (job) {
+  if (this.isClosing) return job.emit('error', new Error('Client is closing'))
+
   utils.logger.info('submit job', job)
 
   this.jobsWaitingForTheCreation.push(job)
@@ -181,6 +184,22 @@ Client.prototype.__emitEventWithWorkload = function (eventName, content) {
   job.emit(eventName, workloadBuffer)
 
   return jobHandleBuffer
+}
+
+Client.prototype.close = function (callback) {
+  callback = callback || function () { }
+  this.isClosing = true
+  var self = this
+  var n = this.jobsWaitingForTheCreation.length
+  for (var i = 0; i < n; i++) {
+    this.jobsWaitingForTheCreation[i].on('submitted', function () {
+      n--
+      if (n === 0) {
+        callback()
+        self.disconnect()
+      }
+    })
+  }
 }
 
 module.exports = Client
