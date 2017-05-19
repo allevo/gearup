@@ -1,4 +1,6 @@
 language: node_js
+dist: trusty
+sudo: required
 script: npm run travis
 node_js:
   - 0.10
@@ -9,8 +11,7 @@ node_js:
 
 before_install:
   - sudo apt-get install python-software-properties
-  - sudo add-apt-repository -y ppa:gearman-developers/ppa
+  - sudo add-apt-repository -y ppa:ondrej/pkg-gearman
   - sudo apt-get update
   - sudo apt-get install gearman
   - gearmand -V
-
