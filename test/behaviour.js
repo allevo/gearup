@@ -175,6 +175,17 @@ describe('behaviour', function () {
       s.connect()
     })
 
+    it('should close if no job is submitting', function (done) {
+      var s = createServer() // new Server('127.0.0.1', 4730);
+
+      s.on('connect', function () {
+        var c = new Client(s)
+
+        c.close(done)
+      })
+      s.connect()
+    })
+
     it('should emit error is client is closing', function (done) {
       var s = createServer() // new Server('127.0.0.1', 4730);
 
@@ -385,6 +396,16 @@ describe('behaviour', function () {
         ws.connect()
       })
       cs.connect()
+    })
+
+    it('close waits the completeness', function (done) {
+      var ws = createServer() // new Server('192.168.99.100', 32768);
+      var w = new Worker(ws)
+
+      ws.on('connect', function () {
+        w.close(done)
+      })
+      ws.connect()
     })
   })
 

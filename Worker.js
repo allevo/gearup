@@ -116,10 +116,17 @@ Worker.prototype.close = function (callback) {
   callback = callback || function () {}
   this.isClosing = true
 
-  if (!this.servingJob) return callback()
+  if (!this.servingJob) {
+    this.disconnect()
+    return callback()
+  }
   var job = this.servingJob
   this.servingJob = null
-  job.on('ended', callback)
+  var self = this
+  job.on('ended', function () {
+    self.disconnect()
+    callback()
+  })
 }
 
 module.exports = Worker

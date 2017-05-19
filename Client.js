@@ -191,6 +191,10 @@ Client.prototype.close = function (callback) {
   this.isClosing = true
   var self = this
   var n = this.jobsWaitingForTheCreation.length
+  if (n === 0) {
+    this.disconnect()
+    return callback()
+  }
   for (var i = 0; i < n; i++) {
     this.jobsWaitingForTheCreation[i].on('submitted', function () {
       n--
