@@ -22,15 +22,17 @@ Job.prototype.success = function (response) {
   try {
     this.server.workComplete(getBuffer(this.jobHandle), new Buffer(response, 'utf8'))
   } catch (e) {
-    this.emit('error', e)
+    return this.emit('error', e)
   }
+  this.emit('ended')
 }
 Job.prototype.fail = function () {
   try {
     this.server.workFail(getBuffer(this.jobHandle))
   } catch (e) {
-    this.emit('error', e)
+    return this.emit('error', e)
   }
+  this.emit('ended')
 }
 Job.prototype.exception = function (response) {
   try {

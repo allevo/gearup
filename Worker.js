@@ -22,6 +22,9 @@ function Worker (server) {
     this.emit('timeout')
   }.bind(this))
 
+  this.isClosing = false
+  this.servingJob = null
+
   this.functions = {}
 }
 inherits(Worker, BaseConnector)
@@ -40,6 +43,8 @@ Worker.prototype.canDo = function (queue, callback) {
 }
 
 Worker.prototype.grab = function () {
+  if (this.isClosing) return this.emit('error', new Error('Worker is closing'))
+
   utils.logger.debug('grab')
 
   try {
@@ -83,6 +88,8 @@ Worker.prototype.handleJobAssign = function (content) {
   job.jobHandle = jobHandle
   job.server = this.server
 
+  this.servingJob = job
+
   callback(job)
 }
 
@@ -103,6 +110,16 @@ Worker.prototype.preSleep = function () {
   } catch (e) {
     this.emit('error', e)
   }
+}
+
+Worker.prototype.close = function (callback) {
+  callback = callback || function () {}
+  this.isClosing = true
+
+  if (!this.servingJob) return callback()
+  var job = this.servingJob
+  this.servingJob = null
+  job.on('ended', callback)
 }
 
 module.exports = Worker

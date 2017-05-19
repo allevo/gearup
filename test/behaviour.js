@@ -345,6 +345,47 @@ describe('behaviour', function () {
       }.bind(this))
       cs.connect()
     })
+
+    it('close waits the completeness', function (done) {
+      var queueName = getRandomQueueName()
+
+      var ws = createServer() // new Server('192.168.99.100', 32768);
+      var w = new Worker(ws)
+
+      var cs = createServer() // new Server('192.168.99.100', 32768);
+      var c = new Client(cs)
+
+      cs.on('connect', function () {
+        ws.on('connect', function () {
+          var job
+          w.canDo(queueName, function (_job) {
+            job = _job
+            setTimeout(function () {
+              _job.success('')
+            }, 200)
+          })
+          w.grab()
+
+          setTimeout(function () {
+            w.close(function () {
+              assert.ok(job)
+              done()
+            })
+
+            w.on('error', function (e) {
+              assert.ok(e instanceof Error)
+            })
+            w.grab()
+          }, 100)
+
+          var j = Job.create(queueName, 'data')
+          j.isBackground = true
+          c.submitJob(j)
+        })
+        ws.connect()
+      })
+      cs.connect()
+    })
   })
 
   describe('both', function () {
