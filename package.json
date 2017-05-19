@@ -10,8 +10,8 @@
     "url": "https://github.com/allevo/confenv/gearup"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/allevo/gearup.git"
+    "type": "git",
+    "url": "https://github.com/allevo/gearup.git"
   },
   "keywords": [
     "gearman",
@@ -21,18 +21,18 @@
   "scripts": {
     "test": "npm run mocha && npm run lint",
     "mocha": "mocha test/",
-    "lint": "eslint . ",
+    "lint": "standard",
     "coveralls": "istanbul cover _mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "travis": "npm run test && npm run coveralls",
     "coverage": "istanbul cover ./node_modules/.bin/_mocha -- test --report HTML"
   },
   "devDependencies": {
     "coveralls": "^2.11.11",
-    "eslint": "^2.10.0",
     "istanbul": "^0.4.4",
     "mocha": "^2.5.3",
     "mocha-lcov-reporter": "^1.2.0",
-    "randomstring": "^1.1.5"
+    "randomstring": "^1.1.5",
+    "standard": "^9.0.0"
   },
   "dependencies": {}
 }

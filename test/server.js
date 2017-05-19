@@ -1,20 +1,21 @@
-'use strict';
+/* eslint-env mocha */
+'use strict'
 
-var assert = require('assert');
+var assert = require('assert')
 
-var Server = require('../Server');
-var protocol  = require('../protocol');
+var Server = require('../Server')
+var protocol = require('../protocol')
 
-function createServer() {
-  return new Server(process.env.GEARMAN_HOST, parseInt(process.env.GEARMAN_PORT, 10));
+function createServer () {
+  return new Server(process.env.GEARMAN_HOST, parseInt(process.env.GEARMAN_PORT, 10))
 }
 
-describe('server', function() {
-  it('submitlJobLowBackground', function() {
-    var isCalledSync = false;
+describe('server', function () {
+  it('submitlJobLowBackground', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_LOW_BG,
@@ -23,22 +24,22 @@ describe('server', function() {
         new Buffer([0x00]),
         new Buffer([]),
         new Buffer([0x00]),
-        new Buffer([0x64, 0x61, 0x74, 0x61]),
-      ]);
+        new Buffer([0x64, 0x61, 0x74, 0x61])
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.submitlJobLowBackground(new Buffer('queue'), new Buffer('data'), new Buffer([]));
+    server.submitlJobLowBackground(new Buffer('queue'), new Buffer('data'), new Buffer([]))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('submitlJobLow', function() {
-    var isCalledSync = false;
+  it('submitlJobLow', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_LOW,
@@ -47,22 +48,22 @@ describe('server', function() {
         new Buffer([0x00]),
         new Buffer([]),
         new Buffer([0x00]),
-        new Buffer([0x64, 0x61, 0x74, 0x61]),
-      ]);
+        new Buffer([0x64, 0x61, 0x74, 0x61])
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.submitlJobLow(new Buffer('queue'), new Buffer('data'), new Buffer([]));
+    server.submitlJobLow(new Buffer('queue'), new Buffer('data'), new Buffer([]))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('submitlJobHighBackground', function() {
-    var isCalledSync = false;
+  it('submitlJobHighBackground', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_HIGH_BG,
@@ -71,22 +72,22 @@ describe('server', function() {
         new Buffer([0x00]),
         new Buffer([]),
         new Buffer([0x00]),
-        new Buffer([0x64, 0x61, 0x74, 0x61]),
-      ]);
+        new Buffer([0x64, 0x61, 0x74, 0x61])
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.submitlJobHighBackground(new Buffer('queue'), new Buffer('data'), new Buffer([]));
+    server.submitlJobHighBackground(new Buffer('queue'), new Buffer('data'), new Buffer([]))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('submitlJobHigh', function() {
-    var isCalledSync = false;
+  it('submitlJobHigh', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_HIGH,
@@ -95,22 +96,22 @@ describe('server', function() {
         new Buffer([0x00]),
         new Buffer([]),
         new Buffer([0x00]),
-        new Buffer([0x64, 0x61, 0x74, 0x61]),
-      ]);
+        new Buffer([0x64, 0x61, 0x74, 0x61])
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.submitlJobHigh(new Buffer('queue'), new Buffer('data'), new Buffer([]));
+    server.submitlJobHigh(new Buffer('queue'), new Buffer('data'), new Buffer([]))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('submitlJobNormalBackground', function() {
-    var isCalledSync = false;
+  it('submitlJobNormalBackground', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB_BG,
@@ -119,22 +120,22 @@ describe('server', function() {
         new Buffer([0x00]),
         new Buffer([]),
         new Buffer([0x00]),
-        new Buffer([0x64, 0x61, 0x74, 0x61]),
-      ]);
+        new Buffer([0x64, 0x61, 0x74, 0x61])
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.submitlJobNormalBackground(new Buffer('queue'), new Buffer('data'), new Buffer([]));
+    server.submitlJobNormalBackground(new Buffer('queue'), new Buffer('data'), new Buffer([]))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('submitlJobNormal', function() {
-    var isCalledSync = false;
+  it('submitlJobNormal', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.SUBMIT_JOB,
@@ -143,80 +144,80 @@ describe('server', function() {
         new Buffer([0x00]),
         new Buffer([]),
         new Buffer([0x00]),
-        new Buffer([0x64, 0x61, 0x74, 0x61]),
-      ]);
+        new Buffer([0x64, 0x61, 0x74, 0x61])
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.submitlJobNormal(new Buffer('queue'), new Buffer('data'), new Buffer([]));
+    server.submitlJobNormal(new Buffer('queue'), new Buffer('data'), new Buffer([]))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('canDo', function() {
-    var isCalledSync = false;
+  it('canDo', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.CAN_DO,
         new Buffer([0x00, 0x00, 0x00, 0x05]),
-        new Buffer('queue'),
-      ]);
+        new Buffer('queue')
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.canDo(new Buffer('queue'));
+    server.canDo(new Buffer('queue'))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('grab', function() {
-    var isCalledSync = false;
+  it('grab', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.GRAB,
-        new Buffer([0x00, 0x00, 0x00, 0x00]),
-      ]);
+        new Buffer([0x00, 0x00, 0x00, 0x00])
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.grab();
+    server.grab()
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('preSleep', function() {
-    var isCalledSync = false;
+  it('preSleep', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.PRE_SLEEP,
-        new Buffer([0x00, 0x00, 0x00, 0x00]),
-      ]);
+        new Buffer([0x00, 0x00, 0x00, 0x00])
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.preSleep();
+    server.preSleep()
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('workStatus', function() {
-    var isCalledSync = false;
+  it('workStatus', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.WORK_STATUS,
@@ -225,154 +226,154 @@ describe('server', function() {
         new Buffer([0x00]),
         new Buffer([0x0c]),
         new Buffer([0x00]),
-        new Buffer([0x0f]),
-      ]);
+        new Buffer([0x0f])
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.workStatus(new Buffer('handle'), new Buffer([0x0c]), new Buffer([0x0f]));
+    server.workStatus(new Buffer('handle'), new Buffer([0x0c]), new Buffer([0x0f]))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('workComplete', function() {
-    var isCalledSync = false;
+  it('workComplete', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.WORK_COMPLETE,
         new Buffer([0x00, 0x00, 0x00, 0x0f]),
         new Buffer('handle'),
         new Buffer([0x00]),
-        new Buffer('response'),
-      ]);
+        new Buffer('response')
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.workComplete(new Buffer('handle'), new Buffer('response'));
+    server.workComplete(new Buffer('handle'), new Buffer('response'))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('workFail', function() {
-    var isCalledSync = false;
+  it('workFail', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.WORK_FAIL,
         new Buffer([0x00, 0x00, 0x00, 0x06]),
-        new Buffer('handle'),
-      ]);
+        new Buffer('handle')
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.workFail(new Buffer('handle'));
+    server.workFail(new Buffer('handle'))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('workException', function() {
-    var isCalledSync = false;
+  it('workException', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.WORK_EXCEPTION,
         new Buffer([0x00, 0x00, 0x00, 0x0f]),
         new Buffer('handle'),
         new Buffer([0x00]),
-        new Buffer('response'),
-      ]);
+        new Buffer('response')
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.workException(new Buffer('handle'), new Buffer('response'));
+    server.workException(new Buffer('handle'), new Buffer('response'))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('workData', function() {
-    var isCalledSync = false;
+  it('workData', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.WORK_DATA,
         new Buffer([0x00, 0x00, 0x00, 0x0f]),
         new Buffer('handle'),
         new Buffer([0x00]),
-        new Buffer('response'),
-      ]);
+        new Buffer('response')
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.workData(new Buffer('handle'), new Buffer('response'));
+    server.workData(new Buffer('handle'), new Buffer('response'))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('workWarning', function() {
-    var isCalledSync = false;
+  it('workWarning', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.WORK_WARNING,
         new Buffer([0x00, 0x00, 0x00, 0x0f]),
         new Buffer('handle'),
         new Buffer([0x00]),
-        new Buffer('response'),
-      ]);
+        new Buffer('response')
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.workWarning(new Buffer('handle'), new Buffer('response'));
+    server.workWarning(new Buffer('handle'), new Buffer('response'))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('echo', function() {
-    var isCalledSync = false;
+  it('echo', function () {
+    var isCalledSync = false
 
-    var server = createServer();
-    server.writeToSocket = function(buffs) {
+    var server = createServer()
+    server.writeToSocket = function (buffs) {
       assert.deepEqual(buffs, [
         protocol.REQUEST_HEADER,
         protocol.REQUEST_PACKET_TYPE.ECHO,
         new Buffer([0x00, 0x00, 0x00, 0x09]),
-        new Buffer('data echo'),
-      ]);
+        new Buffer('data echo')
+      ])
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
-    server.echo(new Buffer('data echo'));
+    server.echo(new Buffer('data echo'))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('diconnect', function(done) {
-    var server = createServer();
-    server.on('connect', function() {
-      server.disconnect(function() {
-        server.disconnect(done);
+  it('diconnect', function (done) {
+    var server = createServer()
+    server.on('connect', function () {
+      server.disconnect(function () {
+        server.disconnect(done)
       })
-      server.disconnect();
-      server.disconnect();
-    });
-    server.connect();
-  });
-});
+      server.disconnect()
+      server.disconnect()
+    })
+    server.connect()
+  })
+})

@@ -1,138 +1,139 @@
-'use strict';
+/* eslint-env mocha */
+'use strict'
 
-var assert = require('assert');
-var EventEmitter = require('events').EventEmitter;
+var assert = require('assert')
+var EventEmitter = require('events').EventEmitter
 
-var Worker = require('../Worker');
-var Job = require('../Job');
+var Worker = require('../Worker')
+var Job = require('../Job')
 
-describe('worker', function() {
-  it('canDo', function() {
-    var isCalledSync = false;
+describe('worker', function () {
+  it('canDo', function () {
+    var isCalledSync = false
 
-    var server = new EventEmitter();
-    server.canDo = function(fnName) {
-      assert.equal('pippo', fnName);
-      isCalledSync = true;
-    };
+    var server = new EventEmitter()
+    server.canDo = function (fnName) {
+      assert.equal('pippo', fnName)
+      isCalledSync = true
+    }
 
-    var w = new Worker(server);
+    var w = new Worker(server)
 
-    var cbk = function() { };
+    var cbk = function () { }
 
-    w.canDo('pippo', cbk);
+    w.canDo('pippo', cbk)
 
-    assert.ok(isCalledSync);
-    assert.deepEqual(cbk, w.functions.pippo);
-  });
+    assert.ok(isCalledSync)
+    assert.deepEqual(cbk, w.functions.pippo)
+  })
 
-  it('grab', function() {
-    var isCalledSync = false;
+  it('grab', function () {
+    var isCalledSync = false
 
-    var server = new EventEmitter();
-    server.grab = function() {
-      isCalledSync = true;
-    };
+    var server = new EventEmitter()
+    server.grab = function () {
+      isCalledSync = true
+    }
 
-    var w = new Worker(server);
-    w.grab();
+    var w = new Worker(server)
+    w.grab()
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('setClientId', function() {
-    var isCalledSync = false;
+  it('setClientId', function () {
+    var isCalledSync = false
 
-    var server = new EventEmitter();
-    server.setClientId = function() {
-      isCalledSync = true;
-    };
+    var server = new EventEmitter()
+    server.setClientId = function () {
+      isCalledSync = true
+    }
 
-    var w = new Worker(server);
-    w.setClientId('pippo');
+    var w = new Worker(server)
+    w.setClientId('pippo')
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('handleJobAssign', function() {
-    var isCalledSync = false;
+  it('handleJobAssign', function () {
+    var isCalledSync = false
     // no action on server. skip mocking
-    var w = new Worker(new EventEmitter());
+    var w = new Worker(new EventEmitter())
 
-    w.functions.queueName = function queueCallback(job) {
-      assert.ok(job instanceof Job);
-      assert.equal('handle', job.jobHandle);
-      assert.equal('queueName', job.queue);
-      assert.deepEqual(new Buffer('the content!'), job.workload);
+    w.functions.queueName = function queueCallback (job) {
+      assert.ok(job instanceof Job)
+      assert.equal('handle', job.jobHandle)
+      assert.equal('queueName', job.queue)
+      assert.deepEqual(new Buffer('the content!'), job.workload)
 
-      isCalledSync = true;
-    };
+      isCalledSync = true
+    }
 
     w.handleJobAssign(Buffer.concat([
       new Buffer('handle'),
       new Buffer([0x00]),
       new Buffer('queueName'),
       new Buffer([0x00]),
-      new Buffer('the content!'),
-    ]));
+      new Buffer('the content!')
+    ]))
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('handleNoJob', function() {
-    var isCalledSync = false;
+  it('handleNoJob', function () {
+    var isCalledSync = false
 
-    var server = new EventEmitter();
-    server.preSleep = function(){
-      isCalledSync = true;
-    };
+    var server = new EventEmitter()
+    server.preSleep = function () {
+      isCalledSync = true
+    }
 
-    var w = new Worker(server);
-    w.handleNoJob();
+    var w = new Worker(server)
+    w.handleNoJob()
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('handleNoOp', function() {
-    var isCalledSync = false;
+  it('handleNoOp', function () {
+    var isCalledSync = false
 
-    var server = new EventEmitter();
-    server.grab = function(){
-      isCalledSync = true;
-    };
+    var server = new EventEmitter()
+    server.grab = function () {
+      isCalledSync = true
+    }
 
-    var w = new Worker(server);
-    w.handleNoOp();
+    var w = new Worker(server)
+    w.handleNoOp()
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('preSleep', function() {
-    var isCalledSync = false;
+  it('preSleep', function () {
+    var isCalledSync = false
 
-    var server = new EventEmitter();
-    server.preSleep = function(){
-      isCalledSync = true;
-    };
+    var server = new EventEmitter()
+    server.preSleep = function () {
+      isCalledSync = true
+    }
 
-    var w = new Worker(server);
-    w.preSleep();
+    var w = new Worker(server)
+    w.preSleep()
 
-    assert.ok(isCalledSync);
-  });
+    assert.ok(isCalledSync)
+  })
 
-  it('emit error', function() {
-    var w = new Worker(new EventEmitter());
+  it('emit error', function () {
+    var w = new Worker(new EventEmitter())
 
-    var errors = [];
-    w.on('error', function(e) {
-      errors.push(e);
+    var errors = []
+    w.on('error', function (e) {
+      errors.push(e)
     })
 
-    w.canDo('Pippo', function() { });
-    w.grab();
-    w.setClientId('clientId');
+    w.canDo('Pippo', function () { })
+    w.grab()
+    w.setClientId('clientId')
 
-    assert.equal(3, errors.length);
-  });
-});
+    assert.equal(3, errors.length)
+  })
+})
