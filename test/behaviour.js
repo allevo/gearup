@@ -398,7 +398,7 @@ describe('behaviour', function () {
       cs.connect()
     })
 
-    it('close waits the completeness', function (done) {
+    it('close waits the completeness without job', function (done) {
       var ws = createServer() // new Server('192.168.99.100', 32768);
       var w = new Worker(ws)
 

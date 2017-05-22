@@ -23,7 +23,7 @@ function Worker (server) {
   }.bind(this))
 
   this.isClosing = false
-  this.servingJob = null
+  this.servingJobs = {}
 
   this.functions = {}
 }
@@ -88,7 +88,11 @@ Worker.prototype.handleJobAssign = function (content) {
   job.jobHandle = jobHandle
   job.server = this.server
 
-  this.servingJob = job
+  this.servingJobs[job.jobHandle] = job
+  var self = this
+  job.on('ended', function () {
+    delete self.servingJobs[this.jobHandle]
+  })
 
   callback(job)
 }
@@ -116,17 +120,22 @@ Worker.prototype.close = function (callback) {
   callback = callback || function () {}
   this.isClosing = true
 
-  if (!this.servingJob) {
+  var keys = Object.keys(this.servingJobs)
+  if (keys.length === 0) {
     this.disconnect()
     return callback()
   }
-  var job = this.servingJob
-  this.servingJob = null
+  var n = keys.length
   var self = this
-  job.on('ended', function () {
-    self.disconnect()
-    callback()
-  })
+  for (var i in keys) {
+    var job = this.servingJobs[keys[i]]
+    job.on('ended', function () {
+      n--
+      if (n !== 0) return
+      self.disconnect()
+      callback()
+    })
+  }
 }
 
 module.exports = Worker
